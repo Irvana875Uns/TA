@@ -17,27 +17,25 @@ const { mutate, isPending } = useHttpMutation(computed(() => `/kelas-bahaya/${ro
   queryOptions: {
     onSuccess(data,) {
       message.success(data.message)
-      router.push('/report-types')
+      router.push('/danger-level')
     },
     onError(error) {
       message.error(error.data.message)
     }
   }
-
-
 })
 
 const rules: FormRules = {
-  name: [
+  level: [
     {
       required: true,
-      message: 'Fakultas harus diisi',
+      message: 'Kelas Bahaya Harus di isi',
     }
   ]
 }
 
 type FormType = {
-  name?: string
+  level?: string
 }
 
 const form = ref<FormType>({
@@ -58,14 +56,14 @@ const onSubmit = () => {
   <div>
     <n-form @submit.prevent="onSubmit" :model="form" :rules="rules">
       <n-form-item label="Kelas Bahaya" path="name">
-        <n-input v-model:value="form.name" />
+        <n-input v-model:value="form.level" />
       </n-form-item>
       <div class="flex gap-3">
         <n-button :loading="isPending" attr-type="submit" type="primary">
-          Submit
+          Edit
         </n-button>
         <n-button type="tertiary" @click="router.back()">
-          Cancel
+          Batal
         </n-button>
       </div>
     </n-form>

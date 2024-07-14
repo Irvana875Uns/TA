@@ -49,10 +49,8 @@ const onSubmit = () => {
     "name": form.value?.name,
     "email": form.value?.email,
     "role": form.value?.role,
-    "gender": form.value?.gender,
     "fakultas_id": form.value?.facultyId,
     "phone": form.value?.phone,
-    "address": form.value?.address
   })
 }
 
@@ -66,7 +64,7 @@ const onSubmit = () => {
   </div>
   <div>
     <n-form :model="form" @submit.prevent="onSubmit">
-      <n-form-item label="Name">
+      <n-form-item label="Nama">
         <n-input v-model:value="form.name" />
       </n-form-item>
       <n-form-item label="Email">
@@ -75,11 +73,8 @@ const onSubmit = () => {
       <n-form-item label="Role">
         <n-select v-model:value="form.role" :options="roleOptions"></n-select>
       </n-form-item>
-      <n-form-item label="Phone">
+      <n-form-item label="Nomor Hp">
         <n-input v-model:value="form.phone" />
-      </n-form-item>
-      <n-form-item label="Address">
-        <n-input type="textarea" v-model:value="form.address" />
       </n-form-item>
       <n-form-item label="Fakultas">
         <n-select v-model:value="form.facultyId" :options="facultyOptions" :loading="isLoadingFaculty"></n-select>

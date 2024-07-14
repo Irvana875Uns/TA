@@ -17,7 +17,7 @@ const showSuccess = ref(false)
 const show = ref(false)
 const form = ref<{
   facultyId?: string
-  reportTypeId?: string
+  reportTypeId?: string | null
   phone?: string
   description?: string
   lat?: string
@@ -25,24 +25,27 @@ const form = ref<{
   imageUrl?: string
   dateTime?: number
   url_foto?: string
-}>({})
+  custom_jenislaporan?: string
+}>({ dateTime: DateTime.now().toMillis() })
 
 const isAuthenticated = Cookies.get('token')
 const { data: faculty, isLoading: isLoadingFaculty } =
   useHttp<R<{ id: string; name: string }[]>>('/fakultas')
 const { data: reportType, isLoading: isLoadingReportType } =
   useHttp<R<{ id: string; name: string }[]>>('/jenis-laporan')
+const { data: poto } = useHttp<R<{ id: string; url_foto: string }[]>>('/laporan-images')
 
 const { mutate, isPending } = useHttpMutation<{
   tanggal_laporan: string
   fakultas_id: string
-  jenislaporan_id: string
+  jenislaporan_id?: string | null
   no_hp: string
   nama_pelapor: string
   keterangan_pelapor: string
   lat: string
   long: string
   url_foto: string
+  custom_jenislaporan?: string
 }>('/public/laporan', {
   method: 'POST',
   queryOptions: {
@@ -68,7 +71,7 @@ const { mutate: upload, isPending: isUploadPending } = useHttpMutation<FormData,
         form.value.url_foto = data.data
       },
       onError(error) {
-        message.error('Upload gagal, maksimal ukuran 500kb')
+        message.error('Upload gagal, maksimal ukuran 1000kb')
       }
     }
   }
@@ -144,22 +147,31 @@ const facultyOptions = computed(() => {
 })
 
 const reportTypeOptions = computed(() => {
-  return reportType.value?.data.map((v) => {
-    return { label: v.name, value: v.id }
+  const options = []
+  reportType.value?.data.forEach((v) => {
+    options.push({ label: v.name, value: v.id })
   })
+
+  options.push({
+    label: 'Lainnya',
+    value: 'other',
+  })
+
+  return options
 })
 
 const onSubmit = () => {
   mutate({
     fakultas_id: form.value.facultyId ?? '',
-    jenislaporan_id: form.value.reportTypeId ?? '',
+    jenislaporan_id: form.value.reportTypeId === 'other' ? null : form.value.reportTypeId ?? '',
     no_hp: form.value.phone ?? '',
     keterangan_pelapor: form.value.description ?? '',
     lat: form.value.lat ?? '',
     long: form.value.long ?? '',
     url_foto: form.value.url_foto as string,
     nama_pelapor: profile.value?.data?.name as string,
-    tanggal_laporan: DateTime.fromMillis(form.value.dateTime || 0).toISO() as string
+    tanggal_laporan: DateTime.fromMillis(form.value.dateTime || 0).toISO() as string,
+    custom_jenislaporan: form?.value?.custom_jenislaporan || ''
   })
 }
 
@@ -171,14 +183,22 @@ const onBack = () => {
 
 const onUpload = (ev: { file: UploadSettledFileInfo; fileList: UploadSettledFileInfo[] }) => {
   if (!ev.file.file) return
+  if (!['image/png', 'image/jpg', 'image/svg', 'image/jpeg'].includes(ev.file.file?.type)) {
+      message.error('Hanya bisa upload gambar.')
+    return false
+  }
   const formData = new FormData()
   formData.append('image', ev.file.file)
 
   upload(formData)
 }
-</script>
 
+const disablePreviousDate = (ts: number) => {
+  return ts > Date.now()
+}
+</script>
 <template>
+  
   <n-modal v-model:show="show">
     <login />
   </n-modal>
@@ -256,8 +276,15 @@ const onUpload = (ev: { file: UploadSettledFileInfo; fileList: UploadSettledFile
                     :loading="isLoadingReportType"
                   />
                 </n-form-item>
+                <n-form-item v-if="form.reportTypeId === 'other'" label="Jenis laporan lainnya">
+                  <n-input v-model:value="form.custom_jenislaporan">
+                  </n-input>
+                </n-form-item>
                 <n-form-item label="Tanggal">
-                  <n-date-picker v-model:value="form.dateTime"></n-date-picker>
+                  <n-date-picker
+                    v-model:value="form.dateTime"
+                    :is-date-disabled="disablePreviousDate"
+                  ></n-date-picker>
                 </n-form-item>
                 <n-form-item label="Lokasi">
                   <div id="map" class="w-full h-96"></div>
@@ -269,9 +296,9 @@ const onUpload = (ev: { file: UploadSettledFileInfo; fileList: UploadSettledFile
                   <n-spin :show="isUploadPending">
                     <n-upload
                       :loading="isUploadPending"
-                      multiple
                       directory-dnd
-                      :max="5"
+                      :max="1"
+                      accept="image/png, image/jpeg , image/jpg"
                       @before-upload="onUpload"
                     >
                       <n-upload-dragger>
@@ -315,77 +342,80 @@ const onUpload = (ev: { file: UploadSettledFileInfo; fileList: UploadSettledFile
   <div class="max-w-screen-xl mx-auto pb-20 px-3 mb-96">
     <div class="font-semibold py-5">Foto Dokumentasi</div>
     <div class="grid grid-cols-3 md:w-1/2 gap-5 pr-5">
-      <n-image v-for="i in 9" src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg" />
+      <n-image v-for="item in poto?.data" :src="item.url_foto" />
     </div>
   </div>
   <div>
-    <div class="text-center text-lg mb-5">
+    <div class="text-center text-lg mb-5 font-bold">
       Daftar Nomor Penting (Darurat) Di Lingkungan Universitas Sebelas Maret
     </div>
-    <div class="flex items-center justify-between max-w-screen-xl mx-auto px-3">
-      <div class="flex justify-self-start">Ambulance</div>
-      <div class="justify-self-center">PMI Surakarta</div>
-      <div class="justify-self-end">118 atau 0271-646505</div>
-    </div>
-    <div class="flex justify-between max-w-screen-xl mx-auto px-3">
-      <div></div>
-      <div class="text-center items-center">IKA Universitas Sebelas Maret</div>
-      <div class="text-end items-end justify-end">0858-7777-4788</div>
-    </div>
-    <div class="flex justify-between max-w-screen-xl mx-auto px-3">
-      <div class="text-start">Rumah Sakit</div>
-      <div class="text-center">Dr. Moewardi</div>
-      <div>0271-634634</div>
-    </div>
-    <div class="flex justify-between max-w-screen-xl mx-auto px-3">
-      <div></div>
-      <div class="text-center items-center">RSUD Surakarta</div>
-      <div class="text-end items-end justify-end">0271-715500</div>
-    </div>
-    <div class="flex justify-between max-w-screen-xl mx-auto px-3">
-      <div></div>
-      <div class="text-center items-center">Ortopedi</div>
-      <div class="text-end items-end justify-end">0271-714458</div>
-    </div>
-    <div class="flex justify-between max-w-screen-xl mx-auto px-3">
-      <div></div>
-      <div class="text-center items-center">Dr. Oen Kandang Sapi</div>
-      <div class="text-end items-end justify-end">0271-643139</div>
-    </div>
-    <div class="flex items-center justify-between max-w-screen-xl mx-auto px-3">
-      <div class="flex justify-self-start">Pemadam Kebakaran</div>
-      <div class="justify-self-center">Surakarta</div>
-      <div class="justify-self-end">113 atau 0271-655722</div>
-    </div>
-    <div class="flex items-center justify-between max-w-screen-xl mx-auto px-3">
-      <div class="flex justify-self-start">Search and Rescue (SAR)</div>
-      <div class="justify-self-center">Universitas Sebelas Maret</div>
-      <div class="justify-self-end">0271-660880</div>
-    </div>
-    <div class="flex items-center justify-between max-w-screen-xl mx-auto px-3">
-      <div class="flex justify-self-start">Polisi</div>
-      <div class="justify-self-center">Polrestabes Surakarta</div>
-      <div class="justify-self-end">118 atau 0271-712600</div>
-    </div>
-    <div class="flex justify-between max-w-screen-xl mx-auto px-3">
-      <div></div>
-      <div class="text-center items-center">Satlantas Surakarta</div>
-      <div class="text-end items-end justify-end">0271-656069</div>
-    </div>
-  </div>
-  <div class="flex justify-between max-w-screen-xl mx-auto px-3">
-    <div></div>
-    <div class="text-center items-center">Polsek Jebres</div>
-    <div class="text-end items-end justify-end">0271-644506</div>
-  </div>
-  <div class="flex items-center justify-between max-w-screen-xl mx-auto px-3">
-    <div class="flex justify-self-start">Lain-Lain</div>
-    <div class="justify-self-center">PLN</div>
-    <div class="justify-self-end">0271-722091</div>
-  </div>
-  <div class="flex justify-between max-w-screen-xl mx-auto px-3">
-    <div></div>
-    <div class="text-center items-center">Derek Pemda</div>
-    <div class="text-end items-end justify-end">0822-2100-0059</div>
+    <n-table class="max-w-screen-lg mx-auto">
+      <n-tr>
+        <td rowspan="2">Ambulance</td>
+        <td>PMI Surakarta</td>
+        <td>118 atau 0271-646505</td>
+      </n-tr>
+      <n-tr>
+        <td>IKA Universitas Sebelas Maret</td>
+        <td>0858-7777-4788</td>
+      </n-tr>
+      <n-tr>
+        <td rowspan="4">Rumah Sakit</td>
+        <td>Dr. Moewardi</td>
+        <td>0271-634634</td>
+      </n-tr>
+      <n-tr>
+        <td>RSUD Surakarta</td>
+        <td>0271-715500</td>
+      </n-tr>
+      <n-tr>
+        <td>Ortopedi</td>
+        <td>0271-714458</td>
+      </n-tr>
+      <n-tr>
+        <td>Dr. Oen Kandang Sapi</td>
+        <td>0271-643139</td>
+      </n-tr>
+      <n-tr>
+        <td rowspan="3">Pemadam Kebakaran</td>
+        <td></td>
+        <td>113 atau 0271-655722</td>
+      </n-tr>
+      <n-tr>
+        <td>Surakarta</td>
+        <td>0271-710900</td>
+      </n-tr>
+      <n-tr>
+        <td></td>
+        <td>0271-593113</td>
+      </n-tr>
+      <n-tr>
+        <td rowspan="1">Search And Rescue (SAR)</td>
+        <td>Universitas Sebelas Maret</td>
+        <td>0271-660880</td>
+      </n-tr>
+      <n-tr>
+        <td rowspan="3">Polisi</td>
+        <td>Polrestabes Surakarta</td>
+        <td>0271-712600</td>
+      </n-tr>
+      <n-tr>
+        <td>Satlantas Poltabes</td>
+        <td>0271-656069</td>
+      </n-tr>
+      <n-tr>
+        <td>Polsek Jebres</td>
+        <td>0271-644506</td>
+      </n-tr>
+      <n-tr>
+        <td rowspan="2">Lain-lain</td>
+        <td>PLN</td>
+        <td>0271-722091</td>
+      </n-tr>
+      <n-tr>
+        <td>Derek Pemda</td>
+        <td>0822-2100-0059</td>
+      </n-tr>
+    </n-table>
   </div>
 </template>

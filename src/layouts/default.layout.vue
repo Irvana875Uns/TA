@@ -15,10 +15,10 @@ const { data, isSuccess } = useHttp<ProfileResponse>('profile', {
 })
 
 const options = [
-  {
-    label: 'Profile',
-    key: 'profile'
-  },
+  // {
+  //   label: 'Profile',
+  //   key: 'profile'
+  // },
   {
     label: 'Logout',
     key: '/auth/logout'
@@ -37,12 +37,13 @@ const options = [
         <div>
           <ul class="flex gap-4 items-center">
             <li v-if="data?.data && data?.data.role !== ''">
-              <router-link to="/dashboard">Dashboard</router-link>
+            <router-link v-if="data?.data.role === 'petugas'" to="/report">Report</router-link>
+           <router-link v-else to="/dashboard">Dashboard</router-link>
             </li>
             <li>
               <router-link to="/">Home</router-link>
             </li>
-            <li v-if="data?.data.name">
+            <li v-if="data?.data.role==''">
               <router-link to="/data">Laporan Saya</router-link>
             </li>
             <li>
@@ -84,7 +85,7 @@ const options = [
                     <n-button type="primary" block class="mx-auto max-w-[400px] !w-full !rounded-lg">Masuk</n-button>
                   </div>
                 </n-form>
-                <div class="text-center mb-5">Atau Masuk Menggunakan Akun Google</div>
+                <div class="text-center mb-5">Masuk Menggunakan Akun Google</div>
                 <div class="flex justify-center mt-3 mb-5">
                   <n-button type="primary" block class="mx-auto max-w-[400px] !w-full !rounded-lg">GOOGLE</n-button>
                 </div>

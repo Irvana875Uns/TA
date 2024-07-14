@@ -111,7 +111,7 @@ const { data: profile } = useHttp<ProfileResponse>('/profile')
   <div>
     <div class="flex justify-between mb-5">
       <n-button v-if="profile?.data.role == 'admin'" type="primary"
-        @click="$router.push('/management/admin/create')">Create</n-button>
+        @click="$router.push('/management/admin/create')">Tambah</n-button>
       <div>
         <n-input v-model:value="params.search" placeholder="Cari"></n-input>
       </div>
@@ -137,8 +137,8 @@ const { data: profile } = useHttp<ProfileResponse>('/profile')
     class="max-w-lg">
     <template #action>
       <div class="flex justify-end gap-5">
-        <n-button @click="showDeleteModal = false">Cancel</n-button>
-        <n-button :loading="isPending" type="primary" @click="onDelete()">Delete</n-button>
+        <n-button @click="showDeleteModal = false">Batal</n-button>
+        <n-button :loading="isPending" type="primary" @click="onDelete()">Hapus</n-button>
       </div>
     </template>
   </n-modal>

@@ -132,8 +132,8 @@ const data = computed(() => {
     class="max-w-lg">
     <template #action>
       <div class="flex justify-end gap-5">
-        <n-button @click="showDeleteModal = false">Cancel</n-button>
-        <n-button :loading="isPending" type="primary" @click="onDelete()">Delete</n-button>
+        <n-button @click="showDeleteModal = false">Batal</n-button>
+        <n-button :loading="isPending" type="primary" @click="onDelete()">Hapus</n-button>
       </div>
     </template>
   </n-modal>

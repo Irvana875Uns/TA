@@ -1,7 +1,6 @@
 export const REPORT_STATUSES = [
   'laporan-ditolak',
-  'laporan-diterima',
+  'laporan-ditangani',
   'laporan-masuk',
-  'sedang-ditangani',
-  'sudah-ditangani'
+  'laporan-tertangani'
 ]

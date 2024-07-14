@@ -15,7 +15,9 @@ const params = ref<{
   size?: number
   search?: string
 }>({
-
+page: 1,
+size: 10,
+search: ''
 })
 
 const createColumns = () => {
@@ -86,9 +88,9 @@ const data = computed(() => faculty.value?.data)
   <div>
     <div class="flex flex-col md:flex-row gap-5 mb-10">
       <n-button type="primary" @click="$router.push('/faculty/create')">
-        Create
+        Tambah
       </n-button>
-      <n-input v-model:value="params.search" placeholder="Cari"></n-input>
+      <!-- <n-input v-model:value="params.search" placeholder="Cari"></n-input> -->
     </div>
     <div class="w-full whitespace-pre overflow-auto">
       <n-data-table :loading="isLoading" :columns="columns" :data="(data as any)" />
@@ -111,8 +113,8 @@ const data = computed(() => faculty.value?.data)
     class="max-w-lg">
     <template #action>
       <div class="flex justify-end gap-5">
-        <n-button @click="showDeleteModal = false">Cancel</n-button>
-        <n-button :loading="isPending" type="primary" @click="onDelete(selectedId)">Delete</n-button>
+        <n-button @click="showDeleteModal = false">Batal</n-button>
+        <n-button :loading="isPending" type="primary" @click="onDelete(selectedId)">Hapus</n-button>
       </div>
     </template>
   </n-modal>

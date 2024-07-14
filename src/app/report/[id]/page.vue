@@ -21,6 +21,7 @@ type Data = {
   email_pelapor: string
   no_hp: string
   keterangan_pelapor: string
+  keterangan_penanganan: string
   lat: string
   long: string
   url_foto: string
@@ -124,6 +125,14 @@ const onChange = (v: string) => {
                 <n-td class="w-52"> Keterangan </n-td>
                 <n-td>
                   {{ detail?.data.keterangan_pelapor }}
+                </n-td>
+              </n-tr>
+            </n-table>
+            <n-table>
+              <n-tr>
+                <n-td class="w-52"> Keterangan Penanganan </n-td>
+                <n-td>
+                  {{ detail?.data.keterangan_penanganan }}
                 </n-td>
               </n-tr>
             </n-table>

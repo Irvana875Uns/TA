@@ -45,7 +45,7 @@ const { mutate: updateUser, isPending } = useHttpMutation(
     queryOptions: {
       onSuccess(data) {
         message.success(data.message)
-        router.push('/management/admin')
+        router.push('/management/staff')
       }
     }
   }

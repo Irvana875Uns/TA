@@ -62,7 +62,7 @@ const onSubmit = () => {
   </div>
   <div>
     <n-form @submit.prevent="onSubmit">
-      <n-form-item label="Name">
+      <n-form-item label="Nama">
         <n-input v-model:value="formData.name" />
       </n-form-item>
       <n-form-item label="Email">
@@ -75,12 +75,12 @@ const onSubmit = () => {
           :options="ROLES.map((v) => ({ label: v, value: v }))"
         ></n-select>
       </n-form-item>
-      <n-form-item label="Phone">
+      <n-form-item label="Nomor Hp">
         <n-input v-model:value="formData.phone" />
       </n-form-item>
       <div class="flex gap-3">
-        <n-button type="primary" attr-type="submit" :loading="isPending"> Update </n-button>
-        <n-button type="tertiary"> Cancel </n-button>
+        <n-button type="primary" attr-type="submit" :loading="isPending"> Edit </n-button>
+        <n-button type="tertiary"> Batal </n-button>
       </div>
     </n-form>
   </div>

@@ -14,14 +14,15 @@ const { data: profile } = useHttp<ProfileResponse>('/profile')
 
 const menuOptions = computed(() => [
   {
-    label: 'Dashboard',
+    label: 'Beranda',
     key: '/dashboard',
+    show: ['admin','admin_unit','operator'].includes(profile.value?.data?.role as string),
     icon: renderIcon(HomeOutline)
   },
   {
-    label: 'Management',
+    label: 'Manajement',
     key: '/management',
-    show: ['admin', 'operator'].includes(profile.value?.data?.role as string),
+    show: ['admin','admin_unit','operator'].includes(profile.value?.data?.role as string),
     icon: renderIcon(PeopleOutline),
     children: [
       {
@@ -41,7 +42,7 @@ const menuOptions = computed(() => [
       },
       {
         label: 'Petugas',
-        show: ['admin'].includes(profile.value?.data?.role as string),
+        show: ['admin', 'admin_unit'].includes(profile.value?.data?.role as string),
         key: '/management/staff'
       },
       {
@@ -54,7 +55,7 @@ const menuOptions = computed(() => [
   {
     label: 'Laporan',
     icon: renderIcon(DocumentOutline),
-    show: ['admin', 'operator', 'petugas'].includes(profile.value?.data?.role as string),
+    show: ['petugas'].includes(profile.value?.data?.role as string),
     key: '/report'
   },
   {
@@ -82,10 +83,10 @@ const menuOptions = computed(() => [
 ])
 
 const options = [
-  {
-    label: 'Profile',
-    key: 'profile'
-  },
+  // {
+  //   label: 'Profile',
+  //   key: 'profile'
+  // },
   {
     label: 'Logout',
     key: '/auth/logout'

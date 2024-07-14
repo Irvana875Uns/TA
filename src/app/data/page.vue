@@ -133,7 +133,7 @@ const reportStatusOpt = REPORT_STATUSES.map((v) => ({ label: v, value: v }))
     <div>
       <div class="text-center text-2xl font-semibold">
         Data Laporan Kejadian di Lingkungan UNS
-        Data Tahun 2025
+        Data Tahun 2024
       </div>
     </div>
     <div>

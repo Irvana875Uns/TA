@@ -23,8 +23,6 @@ const { mutate, isPending } = useHttpMutation(computed(() => `/fakultas/${route.
       message.error(error.data.message)
     }
   }
-
-
 })
 
 const rules: FormRules = {
@@ -52,7 +50,7 @@ const onSubmit = () => {
 <template>
   <div>
     <n-h2>
-      Selamat Datang Halaman Edit Jenis Pengaduan Sistem SIGAP
+      Selamat Datang Halaman Edit Fakultas Sistem SIGAP
     </n-h2>
   </div>
   <div>
@@ -62,10 +60,10 @@ const onSubmit = () => {
       </n-form-item>
       <div class="flex gap-3">
         <n-button :loading="isPending" attr-type="submit" type="primary">
-          Submit
+          Edit
         </n-button>
         <n-button type="tertiary" @click="router.back()">
-          Cancel
+          Batal
         </n-button>
       </div>
     </n-form>

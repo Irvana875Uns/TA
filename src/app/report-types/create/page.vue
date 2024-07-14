@@ -59,10 +59,10 @@ const onSubmit = () => {
       </n-form-item>
       <div class="flex gap-3">
         <n-button :loading="isPending" attr-type="submit" type="primary">
-          Submit
+          Tambahkan
         </n-button>
         <n-button type="tertiary">
-          Cancel
+          Batal
         </n-button>
       </div>
     </n-form>

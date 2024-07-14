@@ -152,6 +152,7 @@ const createColumns = (): { key: string | keyof Data; title: string }[] & RowDat
       key: 'action',
       render: (v: { id: string; status: string }) =>
         h(Action, {
+          id: v.id,
           status: v.status,
           onReview: () => {
             showReview.value = true

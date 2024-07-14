@@ -11,6 +11,7 @@ import { DateTime } from 'luxon'
 import icon from 'leaflet/dist/images/marker-icon.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
 import { useMessage } from 'naive-ui'
+import { ref, computed, watchEffect } from 'vue'
 
 const message = useMessage()
 
@@ -75,7 +76,7 @@ const onChange = (v: string) => {
   setTimeout(() => initMap(Number(detail.value?.data.lat), Number(detail.value?.data.long)), 500)
 }
 
-const { mutate } = useHttpMutation<{
+const { mutate, isPending } = useHttpMutation<{
   kelas_bahaya_id: string
   penyebab: string
   kronologi: string
@@ -92,17 +93,25 @@ const { mutate } = useHttpMutation<{
     queryOptions: {
       onSuccess(data) {
         message.success(data.message)
+      },
+      onError: (err) => {
+        message.error(err.data.message)
       }
     }
   }
 )
 
-const { data: user } = useHttp<R<{ id: string; name: string }[]>>('/user')
+const capitalize = (str: string) => {
+  return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
+}
+
+const { data: user } = useHttp<R<{ id: string; name: string, role: string, fakultas_name:string }[]>>('/user')
 const { data: dangerLevel } = useHttp<R<{ level: string }[]>>('/kelas-bahaya')
 
 const users = computed(() => {
   return user.value?.data.map((v) => {
-    return { label: v.name, value: v.id }
+    const role = capitalize(v?.role?.split('_')?.join(' ') || '')
+    return { label: `${v.name} - ${role} - ${v.fakultas_name}`, value: v.id }
   })
 })
 
@@ -112,18 +121,22 @@ const dangerLevels = computed(() => {
   })
 })
 
+// Form state
+const formState = ref({
+  kelas_bahaya_id: '',
+  penyebab: '',
+  kronologi: '',
+  keterangan_penanganan: '',
+  kerugian: '',
+  terpapar: 0,
+  luka: 0,
+  meninggal: 0,
+  kerusakan_lingkungan: 0
+})
+
 const onSubmit = () => {
-  mutate({
-    kelas_bahaya_id: '1',
-    penyebab: 'test',
-    kronologi: 'test',
-    keterangan_penanganan: 'test',
-    kerugian: 'test',
-    terpapar: 1,
-    luka: 1,
-    meninggal: 1,
-    kerusakan_lingkungan: 1
-  })
+  console.log("Submitting form with state:", formState.value)
+  mutate(formState.value)
 }
 </script>
 
@@ -133,35 +146,32 @@ const onSubmit = () => {
   </div>
   <div>
     <n-form @submit.prevent="onSubmit">
-      <n-form-item label="Petugas">
-        <n-select :options="users"></n-select>
-      </n-form-item>
       <n-form-item label="Kelas Bahaya">
-        <n-select :options="dangerLevels"></n-select>
+        <n-select v-model="formState.kelas_bahaya_id" :options="dangerLevels"></n-select>
       </n-form-item>
       <n-form-item label="Penyebab">
-        <n-input type="textarea"></n-input>
+        <n-input v-model="formState.penyebab" type="textarea"></n-input>
       </n-form-item>
       <n-form-item label="Kronologi">
-        <n-input type="textarea"></n-input>
+        <n-input v-model="formState.kronologi" type="textarea"></n-input>
       </n-form-item>
       <n-form-item label="Keterangan Penanganan">
-        <n-input type="textarea"></n-input>
+        <n-input v-model="formState.keterangan_penanganan" type="textarea"></n-input>
       </n-form-item>
       <n-form-item label="Kerugian">
-        <n-input type="textarea"></n-input>
+        <n-input v-model="formState.kerugian" type="textarea"></n-input>
       </n-form-item>
       <n-form-item label="Terpapar">
-        <n-input-number></n-input-number>
+        <n-input-number v-model="formState.terpapar"></n-input-number>
       </n-form-item>
       <n-form-item label="Luka">
-        <n-input-number></n-input-number>
+        <n-input-number v-model="formState.luka"></n-input-number>
       </n-form-item>
       <n-form-item label="Meninggal">
-        <n-input-number></n-input-number>
+        <n-input-number v-model="formState.meninggal"></n-input-number>
       </n-form-item>
       <n-form-item label="Kerusakan lainnya">
-        <n-input-number></n-input-number>
+        <n-input-number v-model="formState.kerusakan_lingkungan"></n-input-number>
       </n-form-item>
       <div class="flex flex-col gap-3">
         <n-button type="primary" attr-type="submit"> Tangani </n-button>
@@ -170,3 +180,4 @@ const onSubmit = () => {
     </n-form>
   </div>
 </template>
+

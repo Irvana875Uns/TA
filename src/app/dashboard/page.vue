@@ -10,11 +10,13 @@ import { DateTime } from 'luxon'
 import { useHttp, useHttpMutation } from '@/composables/http/http'
 import { REPORT_STATUSES } from '@/constants/report'
 import { NImage, useMessage } from 'naive-ui'
+import Action from './_components/action.vue'
 import L, { Marker } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 import icon from 'leaflet/dist/images/marker-icon.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
+import type { ProfileResponse } from '@/types/profile'
 
 type Data = {
   id: string
@@ -22,6 +24,7 @@ type Data = {
   detail_id: any
   fakultas_id: string
   jenislaporan_id: string
+  custom_jenislaporan: string
   email_pelapor: string
   no_hp: string
   keterangan_pelapor: string
@@ -60,6 +63,9 @@ const showReview = ref<boolean>(false)
 const selectedId = ref<string>()
 const router = useRouter()
 
+const { data: laporan } = useHttp<R<{ status: string; count: string }[]>>('/dashboard')
+const { data: profile } = useHttp<ProfileResponse>('/profile')
+
 const { data: detail } = useHttp<R<Data>>(
   computed(() => `/laporan/${selectedId.value}`),
   {
@@ -72,6 +78,7 @@ const { data: detail } = useHttp<R<Data>>(
 
 const { data: reportType, isLoading: isLoadingReportType } =
   useHttp<R<{ id: string; name: string }[]>>('/jenis-laporan')
+  
 const reportTypeOptions = computed(() => {
   return reportType.value?.data.map((v) => {
     return { label: v.name, value: v.id }
@@ -84,6 +91,7 @@ const { mutate: approval, isPending } = useHttpMutation(
     method: 'POST',
     queryOptions: {
       onSuccess: (data) => {
+        console.log(data)
         refetch()
         showApproval.value = false
         showReview.value = false
@@ -105,8 +113,8 @@ const onReject = () => {
   })
 }
 
-const createColumns = (): { key: string | keyof Data; title: string }[] & RowData[] => {
-  return [
+const columns = computed(() =>
+  [
     {
       title: 'Tanggal dan Waktu',
       key: 'created_at',
@@ -123,7 +131,10 @@ const createColumns = (): { key: string | keyof Data; title: string }[] & RowDat
     },
     {
       title: 'Tipe Pengaduan',
-      key: 'jenis_laporan'
+      key: 'jenis_laporan',
+      render: (item: Data) => (
+        item?.jenis_laporan || item?.custom_jenislaporan
+      )
     },
     {
       title: 'Status',
@@ -144,11 +155,33 @@ const createColumns = (): { key: string | keyof Data; title: string }[] & RowDat
             height: '30px'
           }
         })
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (v: { id: string; status: string }) =>
+        h(Action, {
+          status: v.status,
+          onReview: () => {
+            showReview.value = true
+            selectedId.value = v.id
+          },
+          onDetail: () => {
+            router.push(`/report/${v.id}`)
+          },
+          onApproval: () => {
+            selectedId.value = v.id
+            showApproval.value = true
+          }
+        })
     }
-  ]
-}
-
-const columns = createColumns()
+  ].filter((item) => {
+    if (['petugas', 'admin_unit'].includes(profile.value?.data?.role as string)) {
+      return item.key != 'action'
+    }
+    return true
+  })
+)
 
 const data = computed(() => {
   return report.value?.data
@@ -176,27 +209,32 @@ watchEffect(() => {
   }
 })
 
+const capitalize = (str: string) => {
+  return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
+}
+
 const reportStatusOpt = REPORT_STATUSES.map((v) => ({ label: v, value: v }))
 
-const { data: user } = useHttp<R<{ id: string; name: string }[]>>('/user')
+const { data: user } = useHttp<R<{ id: string; name: string, role: string,fakultas_name:string }[]>>('/user')
 
 const users = computed(() => {
   return user.value?.data.map((v) => {
-    return { label: v.name, value: v.id }
+    const role =capitalize(v?.role?.split('_')?.join(' ') || '') 
+    return { label: `${v.name} - ${role} - ${v.fakultas_name}`, value: v.id }
   })
 })
-
-const { data: profile } = useHttp('/profile')
 </script>
 
 <template>
-  <div class="mb-5">
-    <n-h2>
-      Hai {{ profile?.data?.name }}
-    </n-h2>
-    <p> Selamat Datang Halaman Laporan Sistem SIGAP </p>
+  <div>
+    <n-h2> Selamat Datang Halaman Laporan Sistem SIGAP </n-h2>
   </div>
   <div>
+    <div class="flex flex-col md:flex-row gap-5 mb-10">
+      <n-card v-for="item in laporan?.data">
+        <n-card> {{ item.status }} : {{ item.count }} </n-card>
+      </n-card>
+    </div>
     <div class="flex flex-col md:flex-row gap-5 mb-10">
       <n-select
         v-model:value="params.status"
@@ -258,7 +296,7 @@ const { data: profile } = useHttp('/profile')
       <n-tr>
         <n-td> Jenis Laporan </n-td>
         <n-td>
-          {{ detail?.data.jenis_laporan }}
+          {{ detail?.data.jenis_laporan || detail?.data?.custom_jenislaporan }}
         </n-td>
       </n-tr>
       <n-tr>

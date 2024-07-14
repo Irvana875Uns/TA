@@ -25,16 +25,16 @@ const { mutate, isPending } = useHttpMutation('/kelas-bahaya', {
 })
 
 const rules: FormRules = {
-  name: [
+  level: [
     {
       required: true,
-      message: 'Fakultas harus diisi',
+      message: 'Kelas Bahaya harus di isi',
     }
   ]
 }
 
 type FormType = {
-  name?: string
+  level?: string
 }
 
 const form = ref<FormType>({
@@ -55,14 +55,14 @@ const onSubmit = () => {
   <div>
     <n-form @submit.prevent="onSubmit" :model="form" :rules="rules">
       <n-form-item label="Kelas Bahaya" path="name">
-        <n-input v-model:value="form.name" />
+        <n-input v-model:value="form.level" />
       </n-form-item>
       <div class="flex gap-3">
         <n-button :loading="isPending" attr-type="submit" type="primary">
-          Submit
+          Tambahkan
         </n-button>
         <n-button type="tertiary">
-          Cancel
+          Batal
         </n-button>
       </div>
     </n-form>

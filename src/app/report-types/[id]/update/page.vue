@@ -23,8 +23,6 @@ const { mutate, isPending } = useHttpMutation(computed(() => `/jenis-laporan/${r
       message.error(error.data.message)
     }
   }
-
-
 })
 
 const rules: FormRules = {

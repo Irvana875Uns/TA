@@ -79,8 +79,8 @@ const onSubmit = () => {
         <n-input v-model:value="formData.phone" />
       </n-form-item>
       <div class="flex gap-3">
-        <n-button type="primary" attr-type="submit" :loading="isPending"> Update </n-button>
-        <n-button type="tertiary"> Cancel </n-button>
+        <n-button type="primary" attr-type="submit" :loading="isPending"> Edit </n-button>
+        <n-button type="tertiary"> Batal </n-button>
       </div>
     </n-form>
   </div>

@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import { useHttp } from '@/composables/http/http'
-import { REPORT_STATUSES } from '@/constants/report'
-import type { ProfileResponse } from '@/types/profile'
+import { useHttp } from '@/composables/http/http';
+import type { ProfileResponse } from '@/types/profile';
 
 const { data: profile } = useHttp<ProfileResponse>('/profile')
 
 defineProps<{
-  id: string
-  status:
-    | 'laporan-ditolak'
-    | 'laporan-ditangani'
-    | 'laporan-masuk'
-    | 'laporan-tertangani'
-    | string
+  status: 'laporan-ditolak' |
+  'laporan-ditangani' |
+  'laporan-masuk' |
+  'laporan-tertangani' | string
 }>()
 
 defineEmits<{
@@ -24,9 +20,11 @@ defineEmits<{
 
 <template>
   <div class="flex gap-2">
-    <n-tooltip>
+    <n-tooltip >
       <template #trigger>
-        <n-button @click="$emit('detail')" type="tertiary"> Detail </n-button>
+        <n-button @click="$emit('detail')" type="tertiary">
+          Detail
+        </n-button>
       </template>
       Detail
     </n-tooltip>
@@ -39,18 +37,10 @@ defineEmits<{
       </n-tooltip>
       <n-tooltip v-if="status == 'laporan-masuk'">
         <template #trigger>
-          <n-button @click="$emit('approval')" type="success"> Approval </n-button>
+          <n-button @click="$emit('approval')" type="success"> Terima </n-button>
         </template>
-        Approval
+        Terima
       </n-tooltip>
     </template>
-    <n-tooltip v-if="status == 'laporan-diterima'">
-      <template #trigger>
-        <n-button type="primary" @click="$router.push(`/report/${id}/exec`)">
-          Buat laporan
-        </n-button>
-      </template>
-      Buat Laporan
-    </n-tooltip>
   </div>
 </template>
