@@ -102,10 +102,14 @@ const { mutate, isPending } = useHttpMutation<{
 )
 
 const capitalize = (str: string) => {
-  return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
+  return str
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 }
 
-const { data: user } = useHttp<R<{ id: string; name: string, role: string, fakultas_name:string }[]>>('/user')
+const { data: user } =
+  useHttp<R<{ id: string; name: string; role: string; fakultas_name: string }[]>>('/user')
 const { data: dangerLevel } = useHttp<R<{ level: string }[]>>('/kelas-bahaya')
 
 const users = computed(() => {
@@ -117,7 +121,7 @@ const users = computed(() => {
 
 const dangerLevels = computed(() => {
   return dangerLevel.value?.data.map((v) => {
-    return { label: v.level, value: v.level }
+    return { label: v.level, value: v.id }
   })
 })
 
@@ -135,7 +139,7 @@ const formState = ref({
 })
 
 const onSubmit = () => {
-  console.log("Submitting form with state:", formState.value)
+  console.log('Submitting form with state:', formState.value)
   mutate(formState.value)
 }
 </script>
@@ -147,31 +151,31 @@ const onSubmit = () => {
   <div>
     <n-form @submit.prevent="onSubmit">
       <n-form-item label="Kelas Bahaya">
-        <n-select v-model="formState.kelas_bahaya_id" :options="dangerLevels"></n-select>
+        <n-select v-model:value="formState.kelas_bahaya_id" :options="dangerLevels"></n-select>
       </n-form-item>
       <n-form-item label="Penyebab">
-        <n-input v-model="formState.penyebab" type="textarea"></n-input>
+        <n-input v-model:value="formState.penyebab" type="textarea"></n-input>
       </n-form-item>
       <n-form-item label="Kronologi">
-        <n-input v-model="formState.kronologi" type="textarea"></n-input>
+        <n-input v-model:value="formState.kronologi" type="textarea"></n-input>
       </n-form-item>
       <n-form-item label="Keterangan Penanganan">
-        <n-input v-model="formState.keterangan_penanganan" type="textarea"></n-input>
+        <n-input v-model:value="formState.keterangan_penanganan" type="textarea"></n-input>
       </n-form-item>
       <n-form-item label="Kerugian">
-        <n-input v-model="formState.kerugian" type="textarea"></n-input>
+        <n-input v-model:value="formState.kerugian" type="textarea"></n-input>
       </n-form-item>
       <n-form-item label="Terpapar">
-        <n-input-number v-model="formState.terpapar"></n-input-number>
+        <n-input-number v-model:value="formState.terpapar"></n-input-number>
       </n-form-item>
       <n-form-item label="Luka">
-        <n-input-number v-model="formState.luka"></n-input-number>
+        <n-input-number v-model:value="formState.luka"></n-input-number>
       </n-form-item>
       <n-form-item label="Meninggal">
-        <n-input-number v-model="formState.meninggal"></n-input-number>
+        <n-input-number v-model:value="formState.meninggal"></n-input-number>
       </n-form-item>
       <n-form-item label="Kerusakan lainnya">
-        <n-input-number v-model="formState.kerusakan_lingkungan"></n-input-number>
+        <n-input-number v-model:value="formState.kerusakan_lingkungan"></n-input-number>
       </n-form-item>
       <div class="flex flex-col gap-3">
         <n-button type="primary" attr-type="submit"> Tangani </n-button>
@@ -180,4 +184,3 @@ const onSubmit = () => {
     </n-form>
   </div>
 </template>
-

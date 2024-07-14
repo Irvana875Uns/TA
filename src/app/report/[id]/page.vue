@@ -33,6 +33,7 @@ type Data = {
   jenis_laporan: string
   nama_pelapor: string
   tanggal_laporan: string
+  detail: object
 }
 
 const route = useRoute()
@@ -119,7 +120,7 @@ const onChange = (v: string) => {
       <n-tabs @update-value="onChange" type="line" animated display-directive="show">
         <n-tab-pane name="detail" tab="Detail" class="space-y-5">
           <div id="map" class="w-full h-96"></div>
-          <div>
+          <div class="grid grid-cols-2 gap-5">
             <n-table>
               <n-tr>
                 <n-td class="w-52"> Keterangan </n-td>
@@ -127,12 +128,54 @@ const onChange = (v: string) => {
                   {{ detail?.data.keterangan_pelapor }}
                 </n-td>
               </n-tr>
-            </n-table>
-            <n-table>
               <n-tr>
                 <n-td class="w-52"> Keterangan Penanganan </n-td>
                 <n-td>
-                  {{ detail?.data.keterangan_penanganan }}
+                  {{ detail?.data?.detail.keterangan_penanganan }}
+                </n-td>
+              </n-tr>
+              <n-tr>
+                <n-td class="w-52"> penyebab </n-td>
+                <n-td>
+                  {{ detail?.data?.detail.penyebab }}
+                </n-td>
+              </n-tr>
+              <n-tr>
+                <n-td class="w-52"> kronologi </n-td>
+                <n-td>
+                  {{ detail?.data?.detail.kronologi }}
+                </n-td>
+              </n-tr>
+              <n-tr>
+                <n-td class="w-52"> kerugian </n-td>
+                <n-td>
+                  {{ detail?.data?.detail.kerugian }}
+                </n-td>
+              </n-tr>
+            </n-table>
+            <n-table>
+              <n-tr>
+                <n-td class="w-52"> terpapar </n-td>
+                <n-td>
+                  {{ detail?.data?.detail.korban.terpapar }}
+                </n-td>
+              </n-tr>
+              <n-tr>
+                <n-td class="w-52"> luka </n-td>
+                <n-td>
+                  {{ detail?.data?.detail.korban.luka }}
+                </n-td>
+              </n-tr>
+              <n-tr>
+                <n-td class="w-52"> meninggal </n-td>
+                <n-td>
+                  {{ detail?.data?.detail.korban.meninggal }}
+                </n-td>
+              </n-tr>
+              <n-tr>
+                <n-td class="w-52"> kerusakan_lingkungan </n-td>
+                <n-td>
+                  {{ detail?.data?.detail.korban.kerusakan_lingkungan }}
                 </n-td>
               </n-tr>
             </n-table>
