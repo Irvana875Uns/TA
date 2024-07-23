@@ -4,13 +4,27 @@ meta:
 </route>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, computed, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useHttp } from '@/composables/http/http'
 import { DateTime } from 'luxon'
 import icon from 'leaflet/dist/images/marker-icon.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
+
+type Detail = {
+  keterangan_penanganan?: string
+  penyebab?: string
+  kronologi?: string
+  kerugian?: string
+  korban?: {
+    terpapar?: string
+    luka?: string
+    meninggal?: string
+    kerusakan_lingkungan?: string
+  }
+}
 
 type Data = {
   id: string
@@ -33,7 +47,7 @@ type Data = {
   jenis_laporan: string
   nama_pelapor: string
   tanggal_laporan: string
-  detail: object
+  detail: Detail
 }
 
 const route = useRoute()
@@ -157,25 +171,25 @@ const onChange = (v: string) => {
               <n-tr>
                 <n-td class="w-52"> terpapar </n-td>
                 <n-td>
-                  {{ detail?.data?.detail.korban.terpapar }}
+                  {{ detail?.data?.detail.korban?.terpapar }}
                 </n-td>
               </n-tr>
               <n-tr>
                 <n-td class="w-52"> luka </n-td>
                 <n-td>
-                  {{ detail?.data?.detail.korban.luka }}
+                  {{ detail?.data?.detail.korban?.luka }}
                 </n-td>
               </n-tr>
               <n-tr>
                 <n-td class="w-52"> meninggal </n-td>
                 <n-td>
-                  {{ detail?.data?.detail.korban.meninggal }}
+                  {{ detail?.data?.detail.korban?.meninggal }}
                 </n-td>
               </n-tr>
               <n-tr>
                 <n-td class="w-52"> kerusakan_lingkungan </n-td>
                 <n-td>
-                  {{ detail?.data?.detail.korban.kerusakan_lingkungan }}
+                  {{ detail?.data?.detail.korban?.kerusakan_lingkungan }}
                 </n-td>
               </n-tr>
             </n-table>
