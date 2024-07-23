@@ -46,7 +46,13 @@ const params = ref<{
   status?: string
   q?: string
   type?: string
-}>({})
+  role?: string
+  search?: string
+}>({
+  page: 1,
+  size: 10,
+  role: 'petugas'
+})
 
 const {
   data: report,
@@ -215,7 +221,9 @@ const capitalize = (str: string) => {
 
 const reportStatusOpt = REPORT_STATUSES.map((v) => ({ label: v, value: v }))
 
-const { data: user } = useHttp<R<{ id: string; name: string, role: string,fakultas_name:string }[]>>('/user')
+const { data: user } = useHttp<R<{ id: string; name: string, role: string,fakultas_name:string }[]>>('/user', {
+  params
+})
 
 const users = computed(() => {
   return user.value?.data.map((v) => {
@@ -230,12 +238,12 @@ const users = computed(() => {
     <n-h2> Selamat Datang Halaman Laporan Sistem SIGAP </n-h2>
   </div>
   <div>
-    <div class="flex flex-col md:flex-row gap-5 mb-10">
+    <div class="flex flex-col md:flex-row max-w-screen-xl mx-auto gap-5 mb-10">
       <n-card v-for="item in laporan?.data">
         <n-card> {{ item.status }} : {{ item.count }} </n-card>
       </n-card>
     </div>
-    <div class="flex flex-col md:flex-row gap-5 mb-10">
+    <div class="flex flex-col max-w-screen-xl mx-auto md:flex-row gap-5 mb-10">
       <n-select
         v-model:value="params.status"
         placeholder="Status"
@@ -248,9 +256,9 @@ const users = computed(() => {
         :options="reportTypeOptions"
         clearable
       ></n-select>
-      <n-input v-model:value="params.q" placeholder="Cari"></n-input>
+      <n-input v-model:value="params.search" placeholder="Cari"></n-input>
     </div>
-    <div class="w-full whitespace-pre overflow-auto">
+    <div class="w-full whitespace-pre overflow-auto max-w-screen-xl mx-auto">
       <n-data-table :loading="isLoading" :columns="columns" :data="data as any" />
     </div>
     <div class="flex justify-between mt-5">

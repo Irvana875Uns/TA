@@ -83,8 +83,8 @@ const onSubmit = () => {
         <n-button :loading="isPending" type="primary" attr-type="submit">
           Tambahkan
         </n-button>
-        <n-button type="tertiary">
-          Cancel
+        <n-button type="tertiary" @click="$router.back()">
+          Batal
         </n-button>
       </div>
     </n-form>

@@ -79,7 +79,13 @@ const menuOptions = computed(() => [
         key: '/danger-level'
       }
     ]
-  }
+  },
+  // {
+  //   label: 'Tambah Pengaduan',
+  //   key: '/reports',
+  //   show: ['admin','admin_unit','operator'].includes(profile.value?.data?.role as string),
+  //   icon: renderIcon(HomeOutline)
+  // },
 ])
 
 const options = [

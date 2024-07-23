@@ -38,6 +38,7 @@ type Data = {
 }
 
 const route = useRoute()
+const router = useRouter()
 
 const { data: detail } = useHttp<R<Data>>(
   computed(() => `/laporan/${route.params.id}`),
@@ -71,11 +72,6 @@ watchEffect(() => {
   }
 })
 
-const onChange = (v: string) => {
-  if (v != 'detail') return
-  setTimeout(() => initMap(Number(detail.value?.data.lat), Number(detail.value?.data.long)), 500)
-}
-
 const { mutate, isPending } = useHttpMutation<{
   kelas_bahaya_id: string
   penyebab: string
@@ -93,6 +89,7 @@ const { mutate, isPending } = useHttpMutation<{
     queryOptions: {
       onSuccess(data) {
         message.success(data.message)
+        router.push('/report')
       },
       onError: (err) => {
         message.error(err.data.message)
@@ -110,7 +107,7 @@ const capitalize = (str: string) => {
 
 const { data: user } =
   useHttp<R<{ id: string; name: string; role: string; fakultas_name: string }[]>>('/user')
-const { data: dangerLevel } = useHttp<R<{ level: string }[]>>('/kelas-bahaya')
+const { data: dangerLevel } = useHttp<R<{ level: string, id: string }[]>>('/kelas-bahaya')
 
 const users = computed(() => {
   return user.value?.data.map((v) => {
@@ -146,7 +143,7 @@ const onSubmit = () => {
 
 <template>
   <div>
-    <n-h2> Detail Laporan </n-h2>
+    <n-h2> Buat Laporan Petugas </n-h2>
   </div>
   <div>
     <n-form @submit.prevent="onSubmit">
@@ -178,7 +175,7 @@ const onSubmit = () => {
         <n-input-number v-model:value="formState.kerusakan_lingkungan"></n-input-number>
       </n-form-item>
       <div class="flex flex-col gap-3">
-        <n-button type="primary" attr-type="submit"> Tangani </n-button>
+        <n-button :loading="isPending" type="primary" attr-type="submit"> Tangani </n-button>
         <n-button @click="$router.back()"> Kembali </n-button>
       </div>
     </n-form>

@@ -236,7 +236,7 @@ const disablePreviousDate = (ts: number) => {
           </n-steps>
         </div>
       </div>
-      <div ref="successCard" class="md:w-1/2 md:absolute right-0">
+      <div ref="successCard" class="md:w-1/2 right-0">
         <div class="text-xl font-semibold mb-5">Sampaikan Laporan Anda</div>
         <n-card v-if="showSuccess" class="max-w-2xl">
           <n-result
@@ -259,8 +259,8 @@ const disablePreviousDate = (ts: number) => {
                 <n-form-item label="Email">
                   <n-input :value="profile?.data.email as string" disabled />
                 </n-form-item>
-                <n-form-item label="No. Handphone">
-                  <n-input v-model:value="form.phone" />
+                <n-form-item ref="formRef" label="No. Handphone" path="phone">
+                  <n-input v-model:value="form.phone" @keydown.enter.prevent />
                 </n-form-item>
                 <n-form-item label="Fakultas atau Unit">
                   <n-select
@@ -339,13 +339,13 @@ const disablePreviousDate = (ts: number) => {
       </div>
     </div>
   </section>
-  <div class="max-w-screen-xl mx-auto pb-20 px-3 mb-96">
+  <div class="max-w-screen-xl mx-auto pb-5 px-3">
     <div class="font-semibold py-5">Foto Dokumentasi</div>
     <div class="grid grid-cols-3 md:w-1/2 gap-5 pr-5">
       <n-image v-for="item in poto?.data" :src="item.url_foto" />
     </div>
   </div>
-  <div>
+  <div class="py-10">
     <div class="text-center text-lg mb-5 font-bold">
       Daftar Nomor Penting (Darurat) Di Lingkungan Universitas Sebelas Maret
     </div>

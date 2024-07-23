@@ -20,9 +20,11 @@ const params = ref<{
   size?: number
   q?: string
   search?: string
+  role?: string
 }>({
   page: 1,
-  size: 10
+  size: 10,
+  role: 'admin'
 })
 
 
@@ -44,13 +46,13 @@ const createColumns = () => {
       title: 'Fakultas',
       key: 'fakultas_name',
     },
-    {
-      title: 'Role',
-      key: 'role',
-      render: (v: { role: string }) => {
-        return v.role || 'user'
-      }
-    },
+    // {
+    //   title: 'Role',
+    //   key: 'role',
+    //   render: (v: { role: string }) => {
+    //     return v.role || 'user'
+    //   }
+    // },
     {
       title: 'Action',
       key: 'action',

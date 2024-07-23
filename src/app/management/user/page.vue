@@ -43,13 +43,13 @@ const createColumns = () => {
       title: 'Fakultas',
       key: 'fakultas_name',
     },
-    {
-      title: 'Role',
-      key: 'role',
-      render: (v: { role: string }) => {
-        return v.role || 'user'
-      }
-    },
+    // {
+    //   title: 'Role',
+    //   key: 'role',
+    //   render: (v: { role: string }) => {
+    //     return v.role || 'user'
+    //   }
+    // },
     {
       title: 'Action',
       key: 'action',
