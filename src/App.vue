@@ -14,22 +14,24 @@ import { RouterView } from 'vue-router'
       siderColor: 'rgba(28, 33, 66, 1)',
     },
     Menu: {
-      itemIconColorHover: 'rgba(255, 255, 255, 0.9)',
+      itemIconColorHover: 'rgba(255, 255, 255, 0.7)',
       itemTextColorActive: '#00000',
-      itemTextColorActiveHorizontal: 'rgba(255, 255, 255, 0.9)',
+      itemTextColorActiveHorizontal: 'rgba(255, 255, 255, 0.7)',
       itemColorActiveCollapsed: 'rgba(36, 19, 131, 0.15)',
-      itemIconColorHorizontal: 'rgba(4, 0, 0, 0.9)',
-      itemIconColorCollapsed: 'rgba(22, 1, 1, 0.9)',
+      itemIconColorHorizontal: 'rgba(4, 0, 0, 0.7)',
+      itemIconColorCollapsed: '#fff',
       itemColorActiveInverted: 'rgba(27, 28, 28, 1)',
       itemTextColor: '#fff',
       itemIconColor: '#fff',
       itemIconColorActive: '#fff',
-      itemTextColorHover: 'rgba(255, 255, 255, 0.9)',
-      itemTextColorActiveHover: 'rgba(255, 255, 255, 0.9)',
+      itemTextColorHover: 'rgba(255, 255, 255, 0.7)',
+      itemTextColorActiveHover: 'rgba(255, 255, 255, 0.7)',
       itemColorActive: 'rgba(36, 19, 131, 0.15)',
-      itemTextColorChildActive: 'rgba(255, 255, 255, 0.9)',
-      itemIconColorChildActiveHorizontal: 'rgba(255, 255, 255, 0.9)',
-      itemIconColorChildActive: 'rgba(255, 255, 255, 0.9)',
+      itemTextColorChildActive: 'rgba(255, 255, 255, 0.7)',
+      itemIconColorChildActiveHorizontal: 'rgba(255, 255, 255, 0.7)',
+      itemIconColorChildActive: 'rgba(255, 255, 255, 0.7)',
+      itemIconColorCollapsedInverted: '#fff',
+      itemIconColorActiveHover: '#fff'
     }
   }" preflight-style-disabled>
     <n-message-provider>

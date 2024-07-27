@@ -154,7 +154,7 @@ const reportTypeOptions = computed(() => {
 
   options.push({
     label: 'Lainnya',
-    value: 'other',
+    value: 'other'
   })
 
   return options
@@ -184,7 +184,7 @@ const onBack = () => {
 const onUpload = (ev: { file: UploadSettledFileInfo; fileList: UploadSettledFileInfo[] }) => {
   if (!ev.file.file) return
   if (!['image/png', 'image/jpg', 'image/svg', 'image/jpeg'].includes(ev.file.file?.type)) {
-      message.error('Hanya bisa upload gambar.')
+    message.error('Hanya bisa upload gambar.')
     return false
   }
   const formData = new FormData()
@@ -198,7 +198,6 @@ const disablePreviousDate = (ts: number) => {
 }
 </script>
 <template>
-  
   <n-modal v-model:show="show">
     <login />
   </n-modal>
@@ -277,8 +276,7 @@ const disablePreviousDate = (ts: number) => {
                   />
                 </n-form-item>
                 <n-form-item v-if="form.reportTypeId === 'other'" label="Jenis laporan lainnya">
-                  <n-input v-model:value="form.custom_jenislaporan">
-                  </n-input>
+                  <n-input v-model:value="form.custom_jenislaporan"> </n-input>
                 </n-form-item>
                 <n-form-item label="Tanggal">
                   <n-date-picker
@@ -342,7 +340,13 @@ const disablePreviousDate = (ts: number) => {
   <div class="max-w-screen-xl mx-auto pb-5 px-3">
     <div class="font-semibold py-5">Foto Dokumentasi</div>
     <div class="grid grid-cols-3 md:w-1/2 gap-5 pr-5">
-      <n-image v-for="item in poto?.data" :src="item.url_foto" />
+      <n-image
+        v-for="item in poto?.data"
+        :src="item.url_foto"
+        class="object-cover"
+        object-fit="cover"
+        :img-props="{ class: 'object-cover w-full' }"
+      />
     </div>
   </div>
   <div class="py-10">
