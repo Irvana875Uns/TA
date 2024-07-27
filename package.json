@@ -30,6 +30,8 @@
     "vue3-google-login": "^2.0.26"
   },
   "devDependencies": {
+    "@iconify-json/mdi": "^1.1.67",
+    "@iconify/json": "^2.2.231",
     "@playwright/test": "^1.43.1",
     "@rushstack/eslint-patch": "^1.10.2",
     "@tsconfig/node18": "^18.2.4",

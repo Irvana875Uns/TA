@@ -45,7 +45,7 @@
     size?: number
     status?: string
     q?: string
-    type?: string
+    jenis_laporan?: string
     role?: string
     search?: string
   }>({
@@ -87,7 +87,7 @@
     
   const reportTypeOptions = computed(() => {
     return reportType.value?.data.map((v) => {
-      return { label: v.name, value: v.id }
+      return { label: v.name, value: v.name }
     })
   })
   
@@ -251,7 +251,7 @@
           clearable
         ></n-select>
         <n-select
-          v-model:value="params.type"
+          v-model:value="params.jenis_laporan"
           placeholder="Tipe Pengaduan"
           :options="reportTypeOptions"
           clearable
