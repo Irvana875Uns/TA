@@ -147,7 +147,7 @@ const showSidebar = ref(false)
           <div class="sticky w-full inset-x-0 h-16 z-40 border-b">
             <div class="flex justify-between items-center h-16 px-5 bg-primary">
               <div>
-                <n-button class="!text-white" @click="showSidebar = !showSidebar">
+                <n-button class="text-black" @click="showSidebar = !showSidebar">
                   <n-icon class="!text-white">
                     <i-mdi-menu></i-mdi-menu>
                   </n-icon>

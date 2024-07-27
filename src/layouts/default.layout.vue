@@ -101,7 +101,7 @@ watch(computed(() => route.path) ,() => {
         <div>
           <!-- mobile -->
           <div class="md:hidden">
-            <n-button class="!text-white" @click="showMenu = !showMenu">
+            <n-button class="!text-black" @click="showMenu = !showMenu">
               <i-mdi-menu />
             </n-button>
           </div>
