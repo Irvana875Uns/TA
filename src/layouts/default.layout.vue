@@ -32,7 +32,7 @@ const options = [
       <login />
     </n-modal>
     <nav>
-      <div class="max-w-screen-xl mx-auto flex justify-between h-18 items-center px-5">
+      <div class="max-w-screen-xl w-full mx-auto flex justify-between h-18 items-center px-3">
         <div class="text-primary font-bold text-2xl">SIGAP</div>
         <div>
           <ul class="flex gap-4 items-center">
