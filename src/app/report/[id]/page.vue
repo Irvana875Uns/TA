@@ -33,7 +33,18 @@
     jenis_laporan: string
     nama_pelapor: string
     tanggal_laporan: string
-    detail: object
+    detail: {
+      keterangan_penanganan: string
+      penyebab: string
+      kronologi: string
+      kerugian: string
+      korban: {
+        terpapar: string
+        luka: string
+        meninggal: string
+        kerusakan_lingkungan: string
+      }
+    }
   }
   
   const route = useRoute()

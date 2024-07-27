@@ -1,184 +1,274 @@
 <route lang="yaml">
-  meta:
-    layout: main.layout
-  </route>
-  
-  <script setup lang="ts">
-  import L from 'leaflet'
-  import 'leaflet/dist/leaflet.css'
-  import { useHttp, useHttpMutation } from '@/composables/http/http'
-  import { DateTime } from 'luxon'
-  import icon from 'leaflet/dist/images/marker-icon.png'
-  import iconShadow from 'leaflet/dist/images/marker-shadow.png'
-  import { useMessage } from 'naive-ui'
-  import { ref, computed, watchEffect } from 'vue'
-  
-  const message = useMessage()
-  
-  type Data = {
-    id: string
-    pelapor_id: string
-    detail_id: any
-    fakultas_id: string
-    jenislaporan_id: string
-    email_pelapor: string
-    no_hp: string
-    keterangan_pelapor: string
-    lat: string
-    long: string
-    url_foto: string
-    status: string
-    created_at: string
-    updated_at: string
-    deleted_at: any
-    fakultas_name: string
-    jenis_laporan: string
-    nama_pelapor: string
-    tanggal_laporan: string
+meta:
+  layout: main.layout
+</route>
+
+<script setup lang="ts">
+import L, { Marker } from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import { useHttp, useHttpMutation } from '@/composables/http/http'
+import Cookies from 'js-cookie'
+import type { ProfileResponse } from '@/types/profile'
+import { DateTime } from 'luxon'
+import { useMessage, type UploadFileInfo, type UploadSettledFileInfo } from 'naive-ui'
+import icon from 'leaflet/dist/images/marker-icon.png'
+import iconShadow from 'leaflet/dist/images/marker-shadow.png'
+
+const successCard = ref<HTMLElement>()
+const message = useMessage()
+const marker = ref<Marker>()
+const showSuccess = ref(false)
+const show = ref(false)
+const form = ref<{
+  facultyId?: string
+  reportTypeId?: string | null
+  phone?: string
+  description?: string
+  lat?: string
+  long?: string
+  imageUrl?: string
+  dateTime?: number
+  url_foto?: string
+  custom_jenislaporan?: string
+}>({ dateTime: DateTime.now().toMillis() })
+
+const isAuthenticated = Cookies.get('token')
+const { data: faculty, isLoading: isLoadingFaculty } =
+  useHttp<R<{ id: string; name: string }[]>>('/fakultas')
+const { data: reportType, isLoading: isLoadingReportType } =
+  useHttp<R<{ id: string; name: string }[]>>('/jenis-laporan')
+const { data: poto } = useHttp<R<{ id: string; url_foto: string }[]>>('/laporan-images')
+const router = useRouter()
+
+const { mutate, isPending } = useHttpMutation<{
+  tanggal_laporan: string
+  fakultas_id: string
+  jenislaporan_id?: string | null
+  no_hp: string
+  nama_pelapor: string
+  keterangan_pelapor: string
+  lat: string
+  long: string
+  url_foto: string
+  custom_jenislaporan?: string
+}>('/laporan/add-laporan-adminunit', {
+  method: 'POST',
+  queryOptions: {
+    onSuccess(data, variables, context) {
+      router.push('/dashboard')
+      message.success(data.message)
+      showSuccess.value = true
+      setTimeout(() => successCard.value?.scrollIntoView({ behavior: 'smooth' }), 1000)
+    }
   }
-  
-  const route = useRoute()
-  const router = useRouter()
-  
-  const { data: detail } = useHttp<R<Data>>(
-    computed(() => `/laporan/${route.params.id}`),
-    {
-      queryOptions: {
-        queryKey: ['detail', route.params.id],
-        enabled: computed(() => !!route.params.id)
+})
+
+const { mutate: upload, isPending: isUploadPending } = useHttpMutation<FormData, { data: string }>(
+  '/upload-image',
+  {
+    method: 'POST',
+    httpOptions: {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    },
+    queryOptions: {
+      onSuccess(data) {
+        form.value.url_foto = data.data
+      },
+      onError(error) {
+        message.error('Upload gagal, maksimal ukuran 1000kb')
       }
     }
-  )
-  
-  const initMap = (lat: number, lng: number) => {
-    var map = L.map('map').setView([lat, lng], 13)
-    L.Marker.extend({
-      iconUrl: icon,
-      shadowUrl: iconShadow
-    })
-  
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map)
-  
-    L.marker([lat, lng]).addTo(map).bindPopup('Lokasi Kejadian.').openPopup()
   }
-  
-  watchEffect(() => {
-    if (detail.value?.data) {
-      console.log(detail.value.data)
-      setTimeout(() => initMap(Number(detail.value?.data.lat), Number(detail.value?.data.long)), 500)
-    }
-  })
-  
-  const { mutate, isPending } = useHttpMutation<{
-    kelas_bahaya_id: string
-    penyebab: string
-    kronologi: string
-    keterangan_penanganan: string
-    kerugian: string
-    terpapar: number
-    luka: number
-    meninggal: number
-    kerusakan_lingkungan: number
-  }>(
-    computed(() => `/laporan/petugas-report/${route.params.id}`),
-    {
-      method: 'POST',
-      queryOptions: {
-        onSuccess(data) {
-          message.success(data.message)
-          router.push('/dashboard')
+)
+
+const { data: profile } = useHttp<ProfileResponse>('profile', {
+  queryOptions: {
+    queryKey: ['profile'],
+    enabled: computed(() => (isAuthenticated ? true : false))
+  }
+})
+
+watchOnce(
+  profile,
+  () => {
+    setTimeout(() => {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          var map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 13)
+
+          L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(map)
+
+          L.Marker.extend({
+            iconUrl: icon,
+            shadowUrl: iconShadow
+          })
+
+          marker.value = L.marker([position.coords.latitude, position.coords.longitude])
+            .addTo(map)
+            .bindPopup('Lokasi anda saat ini.')
+            .openPopup()
+
+          form.value.lat = position.coords.latitude.toString()
+          form.value.long = position.coords.longitude.toString()
+
+          map.on('click', function (e) {
+            if (marker.value) {
+              map.removeLayer(marker.value)
+            }
+
+            marker.value = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map)
+            form.value.lat = e.latlng.lat.toString()
+            form.value.long = e.latlng.lng.toString()
+          })
         },
-        onError: (err) => {
-          message.error(err.data.message)
+        function (error) {
+          var map = L.map('map').setView([-6.2, 0.3], 13)
+          L.Marker.extend({
+            iconUrl: icon,
+            shadowUrl: iconShadow
+          })
+          map.on('click', function (e) {
+            if (marker.value) {
+              map.removeLayer(marker.value)
+            }
+
+            marker.value = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map)
+          })
         }
-      }
-    }
-  )
-  
-  const capitalize = (str: string) => {
-    return str
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
+      )
+    }, 1000)
+  },
+  { immediate: true, deep: true }
+)
+
+const facultyOptions = computed(() => {
+  return faculty.value?.data.map((v) => {
+    return { label: v.name, value: v.id }
+  })
+})
+
+const reportTypeOptions = computed(() => {
+  const options = []
+  reportType.value?.data.forEach((v) => {
+    options.push({ label: v.name, value: v.id })
+  })
+
+  options.push({
+    label: 'Lainnya',
+    value: 'other'
+  })
+
+  return options
+})
+
+const onSubmit = () => {
+  mutate({
+    fakultas_id: form.value.facultyId ?? '',
+    jenislaporan_id: form.value.reportTypeId === 'other' ? null : form.value.reportTypeId ?? '',
+    no_hp: form.value.phone ?? '',
+    keterangan_pelapor: form.value.description ?? '',
+    lat: form.value.lat ?? '',
+    long: form.value.long ?? '',
+    url_foto: form.value.url_foto as string,
+    nama_pelapor: profile.value?.data?.name as string,
+    tanggal_laporan: DateTime.fromMillis(form.value.dateTime || 0).toISO() as string,
+    custom_jenislaporan: form?.value?.custom_jenislaporan || ''
+  })
+}
+
+const onBack = () => {
+  showSuccess.value = false
+  form.value = {}
+  window.location.reload()
+}
+
+const onUpload = (ev: { file: UploadSettledFileInfo; fileList: UploadSettledFileInfo[] }) => {
+  if (!ev.file.file) return
+  if (!['image/png', 'image/jpg', 'image/svg', 'image/jpeg'].includes(ev.file.file?.type)) {
+    message.error('Hanya bisa upload gambar.')
+    return false
   }
-  
-  const { data: user } =
-    useHttp<R<{ id: string; name: string; role: string; fakultas_name: string }[]>>('/user')
-  const { data: dangerLevel } = useHttp<R<{ level: string, id: string }[]>>('/kelas-bahaya')
-  
-  const users = computed(() => {
-    return user.value?.data.map((v) => {
-      const role = capitalize(v?.role?.split('_')?.join(' ') || '')
-      return { label: `${v.name} - ${role} - ${v.fakultas_name}`, value: v.id }
-    })
-  })
-  
-  const dangerLevels = computed(() => {
-    return dangerLevel.value?.data.map((v) => {
-      return { label: v.level, value: v.id }
-    })
-  })
-  
-  // Form state
-  const formState = ref({
-    kelas_bahaya_id: '',
-    penyebab: '',
-    kronologi: '',
-    keterangan_penanganan: '',
-    kerugian: '',
-    terpapar: 0,
-    luka: 0,
-    meninggal: 0,
-    kerusakan_lingkungan: 0
-  })
-  
-  const onSubmit = () => {
-    console.log('Submitting form with state:', formState.value)
-    mutate(formState.value)
-  }
-  </script>
-  
-  <template>
-    <div>
-      <n-h2> Tambah Pengaduan </n-h2>
+  const formData = new FormData()
+  formData.append('image', ev.file.file)
+
+  upload(formData)
+}
+
+const disablePreviousDate = (ts: number) => {
+  return ts > Date.now()
+}
+</script>
+<template>
+  <n-form @submit.prevent="onSubmit">
+    <n-form-item label="Nama">
+      <n-input :value="profile?.data.name as string" disabled />
+    </n-form-item>
+    <n-form-item label="Email">
+      <n-input :value="profile?.data.email as string" disabled />
+    </n-form-item>
+    <n-form-item ref="formRef" label="No. Handphone" path="phone">
+      <n-input v-model:value="form.phone" @keydown.enter.prevent />
+    </n-form-item>
+    <n-form-item label="Fakultas atau Unit">
+      <n-select
+        v-model:value="form.facultyId"
+        :options="facultyOptions"
+        :loading="isLoadingFaculty"
+      />
+    </n-form-item>
+    <n-form-item label="Jenis Laporan">
+      <n-select
+        v-model:value="form.reportTypeId"
+        :options="reportTypeOptions"
+        :loading="isLoadingReportType"
+      />
+    </n-form-item>
+    <n-form-item v-if="form.reportTypeId === 'other'" label="Jenis laporan lainnya">
+      <n-input v-model:value="form.custom_jenislaporan"> </n-input>
+    </n-form-item>
+    <n-form-item label="Tanggal">
+      <n-date-picker
+        v-model:value="form.dateTime"
+        :is-date-disabled="disablePreviousDate"
+      ></n-date-picker>
+    </n-form-item>
+    <n-form-item label="Lokasi">
+      <div id="map" class="w-full h-96"></div>
+    </n-form-item>
+    <n-form-item label="Deskripsi Laporan">
+      <n-input v-model:value="form.description" type="textarea" />
+    </n-form-item>
+    <n-form-item label="Foto ">
+      <n-spin :show="isUploadPending">
+        <n-upload
+          :loading="isUploadPending"
+          directory-dnd
+          :max="1"
+          accept="image/png, image/jpeg , image/jpg"
+          @before-upload="onUpload"
+        >
+          <n-upload-dragger>
+            <n-text style="font-size: 16px"> Click or drag a file to this area to upload </n-text>
+            <n-p depth="3" style="margin: 8px 0 0 0">
+              Strictly prohibit from uploading sensitive information. For example, your bank card
+              PIN or your credit card expiry date.
+            </n-p>
+          </n-upload-dragger>
+        </n-upload>
+      </n-spin>
+    </n-form-item>
+    <div class="mb-5">
+      <n-checkbox>
+        Laporan ini saya buat sesuai dengan kondisi kejadian yang sesungguhnya
+      </n-checkbox>
     </div>
-    <div>
-      <n-form @submit.prevent="onSubmit">
-        <n-form-item label="Kelas Bahaya">
-          <n-select v-model:value="formState.kelas_bahaya_id" :options="dangerLevels"></n-select>
-        </n-form-item>
-        <n-form-item label="Penyebab">
-          <n-input v-model:value="formState.penyebab" type="textarea"></n-input>
-        </n-form-item>
-        <n-form-item label="Kronologi">
-          <n-input v-model:value="formState.kronologi" type="textarea"></n-input>
-        </n-form-item>
-        <n-form-item label="Keterangan Penanganan">
-          <n-input v-model:value="formState.keterangan_penanganan" type="textarea"></n-input>
-        </n-form-item>
-        <n-form-item label="Kerugian">
-          <n-input v-model:value="formState.kerugian" type="textarea"></n-input>
-        </n-form-item>
-        <n-form-item label="Terpapar">
-          <n-input-number v-model:value="formState.terpapar"></n-input-number>
-        </n-form-item>
-        <n-form-item label="Luka">
-          <n-input-number v-model:value="formState.luka"></n-input-number>
-        </n-form-item>
-        <n-form-item label="Meninggal">
-          <n-input-number v-model:value="formState.meninggal"></n-input-number>
-        </n-form-item>
-        <n-form-item label="Kerusakan lainnya">
-          <n-input-number v-model:value="formState.kerusakan_lingkungan"></n-input-number>
-        </n-form-item>
-        <div class="flex flex-col gap-3">
-          <n-button :loading="isPending" type="primary" attr-type="submit"> Tangani </n-button>
-          <n-button @click="$router.back()"> Kembali </n-button>
-        </div>
-      </n-form>
-    </div>
-  </template>
-  
+    <n-button attr-type="submit"  type="primary">
+      Kirim Laporan
+    </n-button>
+  </n-form>
+</template>

@@ -83,7 +83,7 @@ const menuOptions = computed(() => [
   {
     label: 'Tambah Laporan',
     key: '/reports',
-    show: ['admin','admin_unit','operator'].includes(profile.value?.data?.role as string),
+    show: ['admin_unit'].includes(profile.value?.data?.role as string),
     icon: renderIcon(HomeOutline)
   },
 ])
