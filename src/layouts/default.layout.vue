@@ -73,6 +73,12 @@ watch(computed(() => route.path) ,() => {
           >Home</router-link
         >
       </li>
+      <li v-if="data?.data.role == 'user','petugas','admin','admin-unit', 'operator'" role="button" class="w-full">
+        <router-link class="w-full text-center py-3  hover:bg-primary block hover:text-white rounded-md"
+          role="button"
+          to="/auth/login">Login
+        </router-link>
+      </li>
       <li v-if="data?.data.role == ''" role="button" class="w-full">
         <router-link
           class="w-full text-center py-3 hover:bg-primary block hover:text-white rounded-md"
