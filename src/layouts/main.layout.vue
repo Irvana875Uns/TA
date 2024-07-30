@@ -85,6 +85,12 @@ const menuOptions = computed(() => [
     key: '/reports',
     show: ['admin_unit'].includes(profile.value?.data?.role as string),
     icon: renderIcon(DocumentOutline)
+  },
+  {
+    label: 'Grafik',
+    key: '/chart',
+    show: ['admin'].includes(profile.value?.data?.role as string),
+    icon: renderIcon(DocumentOutline)
   }
 ])
 
